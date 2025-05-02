@@ -8,21 +8,20 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+
 app.use(cors());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
-// HLS source URL
 const m3u8Link = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
 
-// Helper to create ffmpeg volume filters
+
 function createVolumeFilters(ranges) {
     return ranges
         .map(({ start, end }) => `volume=enable='between(t,${start},${end})':volume=0`)
         .join(',');
 }
 
-// Helper to clear output directory
+
 function clearOutputDirectory() {
     const outputBase = path.join(__dirname, 'output');
     if (fs.existsSync(outputBase)) {
@@ -33,7 +32,6 @@ function clearOutputDirectory() {
     }
 }
 
-// Route to mute audio based on timestamp ranges
 app.post('/mute-audio', multer().none(), async (req, res) => {
     const { ranges } = req.body;
 
@@ -48,7 +46,7 @@ app.post('/mute-audio', multer().none(), async (req, res) => {
         return res.status(400).send('Invalid JSON for ranges');
     }
 
-    // Clean up previous output
+
     clearOutputDirectory();
 
     const outputName = `muted_${Date.now()}`;
@@ -82,7 +80,7 @@ app.post('/mute-audio', multer().none(), async (req, res) => {
         .run();
 });
 
-// Start the server
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
