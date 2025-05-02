@@ -19,7 +19,7 @@ const AudioMuteForm = () => {
             setAudioUrl(blobUrl);
             setIsFileInput(true);
             setIsUrlInput(false); 
-            setUrl('');  /
+            setUrl('');
         }
     };
 
