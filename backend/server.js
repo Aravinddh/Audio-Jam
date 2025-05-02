@@ -8,19 +8,17 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-
 app.use(cors());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
-const m3u8Link = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
-
+// ✅ Replace this with the actual path to your local HLS source
+const localM3U8Path = path.join(__dirname, 'output_hls', 'playlist.m3u8');
 
 function createVolumeFilters(ranges) {
     return ranges
         .map(({ start, end }) => `volume=enable='between(t,${start},${end})':volume=0`)
         .join(',');
 }
-
 
 function clearOutputDirectory() {
     const outputBase = path.join(__dirname, 'output');
@@ -46,6 +44,9 @@ app.post('/mute-audio', multer().none(), async (req, res) => {
         return res.status(400).send('Invalid JSON for ranges');
     }
 
+    if (!fs.existsSync(localM3U8Path)) {
+        return res.status(404).send('Source playlist.m3u8 not found.');
+    }
 
     clearOutputDirectory();
 
@@ -58,7 +59,7 @@ app.post('/mute-audio', multer().none(), async (req, res) => {
 
     const filterString = createVolumeFilters(parsedRanges);
 
-    ffmpeg(m3u8Link)
+    ffmpeg(localM3U8Path)
         .noVideo()
         .audioFilters(filterString)
         .audioCodec('aac')
@@ -79,7 +80,6 @@ app.post('/mute-audio', multer().none(), async (req, res) => {
         })
         .run();
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

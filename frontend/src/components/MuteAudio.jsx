@@ -5,21 +5,23 @@ import './MuteForm.css';
 const AudioMuteForm = () => {
     const [ranges, setRanges] = useState([{ start: '', end: '' }]);
     const [mutedAudioUrl, setMutedAudioUrl] = useState('');
-    const audioRef = useRef();
+    const [isLoading, setIsLoading] = useState(false);
+    const originalAudioRef = useRef();
+    const mutedAudioRef = useRef();
 
-    const m3u8FilePath = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+    const localM3U8Path = '/output_hls/playlist.m3u8';
 
     useEffect(() => {
-        if (audioRef.current) {
+        if (originalAudioRef.current) {
             if (Hls.isSupported()) {
                 const hls = new Hls();
-                hls.loadSource(m3u8FilePath);
-                hls.attachMedia(audioRef.current);
-            } else if (audioRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-                audioRef.current.src = m3u8FilePath;
+                hls.loadSource(localM3U8Path);
+                hls.attachMedia(originalAudioRef.current);
+            } else if (originalAudioRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+                originalAudioRef.current.src = localM3U8Path;
             }
         }
-    }, [m3u8FilePath]);
+    }, []);
 
     const handleRangeChange = (index, field, value) => {
         const updatedRanges = [...ranges];
@@ -61,21 +63,41 @@ const AudioMuteForm = () => {
         }
 
         try {
+            setIsLoading(true);
             const formData = new FormData();
             formData.append('ranges', JSON.stringify(numericRanges));
 
-            // Append the local m3u8 file (if you support it via frontend upload)
-            const response = await fetch('https://audio-jam.onrender.com/mute-audio', {
+            const response = await fetch('http://localhost:5000/mute-audio', {
                 method: 'POST',
                 body: formData,
             });
 
             const data = await response.json();
-            setMutedAudioUrl(`https://audio-jam.onrender.com${data.mutedUrl}`);
+
+            if (data.mutedUrl) {
+                setMutedAudioUrl(data.mutedUrl); // ✅ Use backend URL
+            } else {
+                alert('No muted audio URL received from server.');
+            }
         } catch (error) {
             console.error('Error muting audio:', error);
+            alert('Error muting audio.');
+        } finally {
+            setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (mutedAudioUrl && mutedAudioRef.current) {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(mutedAudioUrl);
+                hls.attachMedia(mutedAudioRef.current);
+            } else if (mutedAudioRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+                mutedAudioRef.current.src = mutedAudioUrl;
+            }
+        }
+    }, [mutedAudioUrl]);
 
     return (
         <div className="audio-muter-container">
@@ -83,7 +105,7 @@ const AudioMuteForm = () => {
 
             <div className="audio-player-container">
                 <h3>Original Audio (.m3u8)</h3>
-                <audio ref={audioRef} controls />
+                <audio ref={originalAudioRef} controls />
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -110,25 +132,18 @@ const AudioMuteForm = () => {
                 </div>
 
                 <div className='form-buttons'>
-                    <button type="submit">Mute Audio</button>
+                    <button type="submit" disabled={isLoading}>
+                        {isLoading ? 'Processing...' : 'Mute Audio'}
+                    </button>
                 </div>
             </form>
 
             {mutedAudioUrl && (
                 <div className="audio-player-container">
                     <h3>Muted Audio (.m3u8)</h3>
-                    <audio ref={(ref) => {
-                        if (ref && Hls.isSupported()) {
-                            const hls = new Hls();
-                            hls.loadSource(mutedAudioUrl);
-                            hls.attachMedia(ref);
-                        } else if (ref && ref.canPlayType('application/vnd.apple.mpegurl')) {
-                            ref.src = mutedAudioUrl;
-                        }
-                    }} controls />
+                    <audio ref={mutedAudioRef} controls />
                 </div>
             )}
-
         </div>
     );
 };
