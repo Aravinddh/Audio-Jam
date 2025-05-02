@@ -1,0 +1,88 @@
+/* Container for the form */
+form {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form field styling */
+div {
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+input[type="file"],
+input[type="url"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="file"] {
+    padding: 10px 0;
+}
+
+/* Focus and hover effects for inputs */
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="file"]:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+/* Button styling */
+button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* Placeholder styling */
+input::placeholder {
+    color: #888;
+}
+
+/* Overall form text and spacing */
+h1,
+p {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+/* Styling for the audio player container */
+.audio-player-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+audio {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 10px;
+}
