@@ -171,3 +171,61 @@ button:disabled {
   background-color: #e8f5e9;
   color: #388e3c;
 }
+
+/* Mobile Styles */
+@media (max-width: 600px) {
+    body {
+      padding: 0.8rem;
+    }
+  
+    .audio-muter-container {
+      padding: 10px;
+    }
+  
+    h1.audio-muter-title {
+      font-size: 1.3rem;
+      padding: 0.8rem;
+      max-width: 90%;
+    }
+  
+    .audio-player-container {
+      padding: 0.8rem;
+    }
+  
+    .audio-player-container h3 {
+      font-size: 0.95rem;
+    }
+  
+    form {
+      padding: 1rem;
+    }
+  
+    .range-input {
+      flex-direction: column;
+      gap: 6px;
+    }
+  
+    .range-input input {
+      width: 100%;
+    }
+  
+    .form-buttons {
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+  
+    .form-buttons button {
+      width: 100%;
+    }
+  
+    button {
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+    }
+  
+    .add-btn,
+    .remove-btn {
+      width: 100%;
+    }
+  }
+  
