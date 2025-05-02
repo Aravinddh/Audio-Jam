@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import './AudioMuteForm.css';
+import './MuteForm.css';
 
 const AudioMuteForm = () => {
     const [file, setFile] = useState(null);
@@ -131,6 +131,7 @@ const AudioMuteForm = () => {
 
     return (
         <div>
+            <h1 className="audio-muter-title">Audio Muter</h1>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Upload MP3 File:</label>
@@ -192,16 +193,16 @@ const AudioMuteForm = () => {
                     ))}
                     <button type="button" onClick={addRange}>+ Add Range</button>
                 </div>
-
-                <button type="submit">Submit</button>
+                <div className='form-buttons'>
+                    <button type="button" onClick={handleExtractAudio} disabled={isFileInput}>
+                        Extract Audio
+                    </button>
+                    <button type="submit">Mute Audio</button>
+                </div>
             </form>
 
             {/* New Button for Extracting Audio */}
-            <div>
-                <button type="button" onClick={handleExtractAudio} disabled={isFileInput}>
-                    Extract Audio
-                </button>
-            </div>
+
 
             {/* Display the original audio file immediately */}
             {isFileInput && !audioUrl && (
@@ -246,7 +247,7 @@ const AudioMuteForm = () => {
                 </div>
             )}
 
-            {audioUrl && !extractedAudioUrl && isFileInput && ismuted  && (
+            {audioUrl && !extractedAudioUrl && isFileInput && ismuted && (
                 <div className="audio-player-container">
                     <h3>Muted Audio</h3>
                     <audio controls>
