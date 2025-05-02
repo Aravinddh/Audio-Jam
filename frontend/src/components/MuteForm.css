@@ -172,7 +172,6 @@ button:disabled {
   color: #388e3c;
 }
 
-/* Mobile Styles */
 @media (max-width: 600px) {
     body {
       padding: 0.8rem;
