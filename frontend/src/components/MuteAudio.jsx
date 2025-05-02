@@ -2,14 +2,13 @@ import React, { useState, useRef } from 'react';
 import './MuteForm.css';
 
 const AudioMuteForm = () => {
-    const [file, setFile] = useState(null);
     const [audioUrl, setAudioUrl] = useState('');
     const [ranges, setRanges] = useState([{ start: '', end: '' }]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [url, setUrl] = useState('');
-    const [extractedAudioUrl, setExtractedAudioUrl] = useState(''); // New state for extracted audio
-    const [isFileInput, setIsFileInput] = useState(false); // Boolean to track file input state
-    const [isUrlInput, setIsUrlInput] = useState(false); // Boolean to track URL input state
+    const [extractedAudioUrl, setExtractedAudioUrl] = useState(''); 
+    const [isFileInput, setIsFileInput] = useState(false);
+    const [isUrlInput, setIsUrlInput] = useState(false); 
     const fileInputRef = useRef();
     const [ismuted, setIsMuted] = useState(false);
     const handleFileChange = (e) => {
@@ -17,24 +16,24 @@ const AudioMuteForm = () => {
         if (file) {
             const blobUrl = URL.createObjectURL(file);
             setSelectedFile(file);
-            setAudioUrl(blobUrl); // Directly set the audio URL for file
+            setAudioUrl(blobUrl);
             setIsFileInput(true);
-            setIsUrlInput(false); // Reset URL input state
-            setUrl('');  // Clear any URL input
+            setIsUrlInput(false); 
+            setUrl('');  /
         }
     };
 
     const handleUrlChange = (e) => {
         setUrl(e.target.value);
-        setIsUrlInput(true); // Set URL input state to true
-        setIsFileInput(false); // Reset file input state
+        setIsUrlInput(true); 
+        setIsFileInput(false); 
     };
 
     const handleRemoveFile = () => {
         setSelectedFile(null);
         setAudioUrl('');
         setIsFileInput(false);
-        fileInputRef.current.value = ''; // Clear file input value
+        fileInputRef.current.value = ''; 
     };
 
     const handleRangeChange = (index, field, value) => {
@@ -55,16 +54,13 @@ const AudioMuteForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Convert to numbers
         const numericRanges = ranges.map(r => ({
             start: parseFloat(r.start),
             end: parseFloat(r.end),
         }));
 
-        // Sort by start time
         numericRanges.sort((a, b) => a.start - b.start);
 
-        // Check for overlaps
         for (let i = 1; i < numericRanges.length; i++) {
             if (numericRanges[i].start < numericRanges[i - 1].end) {
                 alert("Timestamp ranges must not overlap.");
@@ -72,7 +68,7 @@ const AudioMuteForm = () => {
             }
         }
 
-        // Optionally, validate each range
+
         for (const r of numericRanges) {
             if (isNaN(r.start) || isNaN(r.end) || r.start >= r.end) {
                 alert("Invalid timestamp range provided.");
@@ -84,10 +80,10 @@ const AudioMuteForm = () => {
         formData.append('ranges', JSON.stringify(numericRanges));
 
         if (url) {
-            // Send m3u8 URL and mute ranges
+
             formData.append('fromM3u8', url);
         } else if (selectedFile) {
-            // Send file and mute ranges
+
             formData.append('file', selectedFile);
         } else {
             alert("Please provide either an MP3 file or a .m3u8 URL.");
@@ -95,20 +91,19 @@ const AudioMuteForm = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/mute-audio', {
+            const response = await fetch('https://audio-jam.onrender.com/mute-audio', {
                 method: 'POST',
                 body: formData,
             });
 
             const data = await response.json();
-            setAudioUrl(`http://localhost:5000${data.mutedUrl}`); // Set muted audio URL
+            setAudioUrl(`https://audio-jam.onrender.com${data.mutedUrl}`); 
             setIsMuted(true)
         } catch (error) {
             console.error('Error muting audio:', error);
         }
     };
 
-    // New function to extract audio from .m3u8 URL
     const handleExtractAudio = async () => {
         if (!url) {
             alert('Please provide an .m3u8 URL.');
@@ -116,14 +111,14 @@ const AudioMuteForm = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/extract-audio', {
+            const response = await fetch('https://audio-jam.onrender.com/extract-audio', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ m3u8Url: url }),
             });
 
             const data = await response.json();
-            setExtractedAudioUrl(`http://localhost:5000${data.audioUrl}`); // Set the extracted audio URL
+            setExtractedAudioUrl(`https://audio-jam.onrender.com${data.audioUrl}`); 
         } catch (error) {
             console.error('Error extracting audio:', error);
         }
@@ -140,7 +135,7 @@ const AudioMuteForm = () => {
                         accept=".mp3"
                         ref={fileInputRef}
                         onChange={handleFileChange}
-                        disabled={isUrlInput} // Disable if URL input is active
+                        disabled={isUrlInput} 
                     />
                     {selectedFile && (
                         <div style={{ marginTop: '8px' }}>
@@ -168,7 +163,7 @@ const AudioMuteForm = () => {
                         type="url"
                         value={url}
                         onChange={handleUrlChange}
-                        disabled={isFileInput} // Disable if file input is active
+                        disabled={isFileInput} 
                     />
                 </div>
 
@@ -201,10 +196,10 @@ const AudioMuteForm = () => {
                 </div>
             </form>
 
-            {/* New Button for Extracting Audio */}
 
 
-            {/* Display the original audio file immediately */}
+
+
             {isFileInput && !audioUrl && (
                 <div className="audio-player-container">
                     <h3>Original Audio</h3>
@@ -225,7 +220,6 @@ const AudioMuteForm = () => {
                 </div>
             )}
 
-            {/* New section to show extracted audio */}
             {extractedAudioUrl && (
                 <div className="audio-player-container">
                     <h3>Extracted Audio</h3>
@@ -236,7 +230,6 @@ const AudioMuteForm = () => {
                 </div>
             )}
 
-            {/* Section to show muted audio */}
             {audioUrl && extractedAudioUrl && !isFileInput && (
                 <div className="audio-player-container">
                     <h3>Muted Audio</h3>

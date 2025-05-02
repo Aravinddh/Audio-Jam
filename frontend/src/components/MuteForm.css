@@ -19,7 +19,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Heading */
+
 h1.audio-muter-title {
   text-align: center;
   background: linear-gradient(to right, var(--primary), var(--secondary));
@@ -33,7 +33,6 @@ h1.audio-muter-title {
   margin: 0 auto 1.5rem auto;
 }
 
-/* Form */
 form {
   background: var(--bg-white);
   padding: 1.2rem;
@@ -43,7 +42,6 @@ form {
   margin: auto;
 }
 
-/* Form Inputs */
 form > div {
   margin-bottom: 1rem;
 }
@@ -77,7 +75,6 @@ input:focus {
   outline: none;
 }
 
-/* Buttons */
 button {
   padding: 0.6rem 1.2rem;
   background: linear-gradient(to right, var(--primary), var(--secondary));
@@ -95,7 +92,6 @@ button:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Extract and Submit Buttons */
 .extract-btn {
   margin-bottom: 0.8rem;
   width: 100%;
@@ -106,7 +102,7 @@ button:hover {
   width: 100%;
 }
 
-/* Remove Time Range Button */
+
 button.remove-btn {
   background: #ff6b6b;
 }
@@ -115,7 +111,7 @@ button.remove-btn:hover {
   background: #e94e4e;
 }
 
-/* Audio Player */
+
 .audio-player-container {
   background: linear-gradient(135deg, #fafcff, #e6eaf8);
   margin: 1.2rem auto;
@@ -139,7 +135,7 @@ button.remove-btn:hover {
   border-radius: 6px;
 }
 
-/* Time Range Inputs */
+
 .range-container {
   display: flex;
   flex-wrap: wrap;
@@ -157,6 +153,6 @@ button.remove-btn:hover {
   
   button.extract-btn,
   button.submit-btn {
-    width: 200px; /* or 100% if you prefer full width */
+    width: 200px; 
   }
   

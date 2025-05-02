@@ -12,16 +12,15 @@ app.use(cors());
 app.use(express.json());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
-// Setup Multer
+
 const upload = multer({ dest: 'uploads/' });
 
-// Utility to generate unique output filenames
+
 const generateOutputName = (prefix = 'muted') => `${prefix}_${Date.now()}.mp3`;
 
-// Store the extracted audio filename globally
+
 let extractedAudioFileName = '';
 
-// Function to create volume filters for mute ranges
 function createVolumeFilters(ranges) {
     return ranges
         .map(({ start, end }) => `volume=enable='between(t,${start},${end})':volume=0`)
@@ -44,13 +43,13 @@ const cleanOutputFolder = () => {
         });
     });
 };
-// Run cleanup at server start
+
 cleanOutputFolder();
 
-// 🔧 Extract audio from m3u8 (already working)
+
 app.post('/extract-audio', async (req, res) => {
     const { m3u8Url } = req.body;
-    extractedAudioFileName = generateOutputName('extracted'); // Store the filename globally
+    extractedAudioFileName = generateOutputName('extracted'); 
     const outputPath = path.join(__dirname, 'output', extractedAudioFileName);
 
     console.log(`Starting extraction from m3u8 URL: ${m3u8Url}`);
@@ -61,7 +60,7 @@ app.post('/extract-audio', async (req, res) => {
         .save(outputPath)
         .on('end', () => {
             console.log(`Audio extracted successfully: ${extractedAudioFileName}`);
-            res.json({ audioUrl: `/output/${extractedAudioFileName}` });  // Respond with the URL of the extracted audio
+            res.json({ audioUrl: `/output/${extractedAudioFileName}` });  
         })
         .on('error', (err) => {
             console.error('Error during m3u8 audio extraction:', err.message);
@@ -69,24 +68,23 @@ app.post('/extract-audio', async (req, res) => {
         });
 });
 
-// ✅ Handle both mp3 file and mute ranges
+
 app.post('/mute-audio', upload.single('file'), async (req, res) => {
     const { ranges, fromM3u8 } = req.body;
-    const parsedRanges = JSON.parse(ranges); // e.g., [{start: "2", end: "5"}, ...]
+    const parsedRanges = JSON.parse(ranges); 
 
     let filePath = '';
     let outputFile = '';
 
-    // If fromM3u8 is provided, use the stored filename for the extracted audio
     if (fromM3u8) {
         if (!extractedAudioFileName) {
             return res.status(400).send('No audio extracted to mute. Please extract audio first.');
         }
-        filePath = path.join(__dirname, 'output', extractedAudioFileName); // Use stored extracted filename
-        outputFile = generateOutputName(); // Use default name for muted audio
+        filePath = path.join(__dirname, 'output', extractedAudioFileName); 
+        outputFile = generateOutputName(); 
     } else if (req.file) {
-        filePath = req.file.path; // Use uploaded MP3 file
-        outputFile = generateOutputName(); // Use default name for muted audio
+        filePath = req.file.path; 
+        outputFile = generateOutputName(); 
     } else {
         return res.status(400).send('No valid audio source provided (file or URL)');
     }
@@ -97,11 +95,11 @@ app.post('/mute-audio', upload.single('file'), async (req, res) => {
     console.log('Using audio file for muting:', filePath);
 
     ffmpeg(filePath)
-        .audioFilters(filterString) // Apply mute filter
+        .audioFilters(filterString) 
         .output(outputPath)
         .on('end', () => {
             console.log(`Audio muted successfully: ${outputFile}`);
-            res.json({ mutedUrl: `/output/${outputFile}` }); // Return the URL for the muted audio file
+            res.json({ mutedUrl: `/output/${outputFile}` }); 
         })
         .on('error', (err) => {
             console.error('Error processing audio:', err);
@@ -110,5 +108,4 @@ app.post('/mute-audio', upload.single('file'), async (req, res) => {
         .run();
 });
 
-// Start server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
