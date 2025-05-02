@@ -65,13 +65,13 @@ const AudioMuteForm = () => {
             formData.append('ranges', JSON.stringify(numericRanges));
 
             // Append the local m3u8 file (if you support it via frontend upload)
-            const response = await fetch('http://localhost:5000/mute-audio', {
+            const response = await fetch('https://audio-jam.onrender.com/mute-audio', {
                 method: 'POST',
                 body: formData,
             });
 
             const data = await response.json();
-            setMutedAudioUrl(`http://localhost:5000${data.mutedUrl}`);
+            setMutedAudioUrl(`https://audio-jam.onrender.com${data.mutedUrl}`);
         } catch (error) {
             console.error('Error muting audio:', error);
         }
