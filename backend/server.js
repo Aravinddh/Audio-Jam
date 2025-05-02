@@ -3,27 +3,53 @@ const cors = require('cors');
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
-app.use(express.json());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
+// HLS source URL
+const m3u8Link = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
 
-const m3u8Link = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'; 
-
+// Helper to create ffmpeg volume filters
 function createVolumeFilters(ranges) {
     return ranges
         .map(({ start, end }) => `volume=enable='between(t,${start},${end})':volume=0`)
         .join(',');
 }
 
+// Helper to clear output directory
+function clearOutputDirectory() {
+    const outputBase = path.join(__dirname, 'output');
+    if (fs.existsSync(outputBase)) {
+        fs.readdirSync(outputBase).forEach(file => {
+            const filePath = path.join(outputBase, file);
+            fs.rmSync(filePath, { recursive: true, force: true });
+        });
+    }
+}
 
-app.post('/mute-audio', async (req, res) => {
+// Route to mute audio based on timestamp ranges
+app.post('/mute-audio', multer().none(), async (req, res) => {
     const { ranges } = req.body;
-    const parsedRanges = JSON.parse(ranges);
+
+    if (!ranges) {
+        return res.status(400).send('No valid audio ranges provided');
+    }
+
+    let parsedRanges;
+    try {
+        parsedRanges = JSON.parse(ranges);
+    } catch (err) {
+        return res.status(400).send('Invalid JSON for ranges');
+    }
+
+    // Clean up previous output
+    clearOutputDirectory();
 
     const outputName = `muted_${Date.now()}`;
     const outputDir = path.join(__dirname, 'output', outputName);
@@ -31,6 +57,7 @@ app.post('/mute-audio', async (req, res) => {
     const playlistPath = path.join(outputDir, playlistFile);
 
     fs.mkdirSync(outputDir, { recursive: true });
+
     const filterString = createVolumeFilters(parsedRanges);
 
     ffmpeg(m3u8Link)
@@ -55,4 +82,7 @@ app.post('/mute-audio', async (req, res) => {
         .run();
 });
 
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
